@@ -14,10 +14,10 @@ object tests extends App{
   Anagrams.combinations(testOc).foreach(println)
 
   val larger = List(('a',7), ('b',2), ('g',2), ('l',1), ('m',1))
-  val smaller = List(('a',7), ('m',1))
+  val smaller = List(('a',6), ('g',1))
 
   println(larger.span(elem => elem._1 == 'b'))
 
-//  println(Anagrams.subtract(larger,smaller))
+  println(Anagrams.subtract(larger,smaller))
 
 }

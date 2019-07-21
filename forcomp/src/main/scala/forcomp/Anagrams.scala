@@ -119,10 +119,11 @@ object Anagrams {
    */
   def subtract(x: Occurrences, y: Occurrences): Occurrences = y match {
     case Nil => x
-    case yOcc => {val index: Int = x.indexWhere(elem => elem._1 == y.head._1)
+    case yOcc => {
+      val index: Int = x.indexWhere(elem => elem._1 == y.head._1)
       val diff = x(index)._2  - yOcc.head._2
       if (diff > 0) subtract(x.updated(index, (x(index)._1, x(index)._2  - yOcc.head._2)), yOcc.tail)
-      else x
+      else subtract(x.filterNot(elem => elem._1 == yOcc.head._1), yOcc.tail)
     }
       }
 
