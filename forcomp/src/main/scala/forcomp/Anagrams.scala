@@ -57,10 +57,15 @@ object Anagrams {
    *    List(('a', 1), ('e', 1), ('t', 1)) -> Seq("ate", "eat", "tea")
    *
    */
-  lazy val dictionaryByOccurrences: Map[Occurrences, List[Word]] = ???
+  lazy val dictionaryByOccurrences: Map[Occurrences, List[Word]] =  dictionary.map(word => (wordOccurrences(word), word))
+                                                                              .groupBy(triple => triple._1)
+                                                                              .map({case (k, v) => (k, v.map(_._2))})
 
   /** Returns all the anagrams of a given word. */
-  def wordAnagrams(word: Word): List[Word] = ???
+  def wordAnagrams(word: Word): List[Word] = dictionaryByOccurrences.get(wordOccurrences(word)) match {
+    case Some(list) => list.filter(!_.equals(word))
+    case None => Nil
+  }
 
   /** Returns the list of all subsets of the occurrence list.
    *  This includes the occurrence itself, i.e. `List(('k', 1), ('o', 1))`
@@ -84,7 +89,23 @@ object Anagrams {
    *  Note that the order of the occurrence list subsets does not matter -- the subsets
    *  in the example above could have been displayed in some other order.
    */
-  def combinations(occurrences: Occurrences): List[Occurrences] = ???
+  def combinations(occurrences: Occurrences): List[Occurrences] = {
+
+    //boiler brain solution
+
+    List() :: (for {
+        occur <- occurrences
+        n <- 1 to occur._2
+        comb <- combinations(occurrences.filter(pair => pair._1 > occur._1))
+      }
+        yield List((occur._1, n)) ++ comb)
+
+
+  // brain rest solution
+//    (for {occur <- occurrences
+//       n <- 1 to occur._2 } yield (occur._1, n)).toSet.subsets() ....
+
+  }
 
   /** Subtracts occurrence list `y` from occurrence list `x`.
    *
@@ -96,7 +117,33 @@ object Anagrams {
    *  Note: the resulting value is an occurrence - meaning it is sorted
    *  and has no zero-entries.
    */
-  def subtract(x: Occurrences, y: Occurrences): Occurrences = ???
+  def subtract(x: Occurrences, y: Occurrences): Occurrences = y match {
+    case Nil => x
+    case yOcc => {val index: Int = x.indexWhere(elem => elem._1 == y.head._1)
+      val diff = x(index)._2  - yOcc.head._2
+      if (diff > 0) subtract(x.updated(index, (x(index)._1, x(index)._2  - yOcc.head._2)), yOcc.tail)
+      else x
+    }
+      }
+
+  /*y match {
+    case Nil => x
+    case yOcc => {val parts = x.span(pair => pair._1 == y.head._1)
+      parts match {
+        case (a, b) if a.isEmpty =>
+
+        case _ => subtract(parts._1.init ::: (parts._1.last._1, parts._1.last._2 - y.head._2) :: parts._2.tail, y.tail)
+      }
+
+    }*/
+//  }
+
+//      def findAndSubtract(x: Occurrences, y: Occurrences) = {
+//        y.foreach()
+//        val parts = x.span(pair => pair._1 == elem._1)
+//        val result = parts._1.init ::: (parts._1.last._1, parts._1.last._2 - elem._2) :: parts._2.tail
+//        result
+//      }
 
   /** Returns a list of all anagram sentences of the given sentence.
    *
